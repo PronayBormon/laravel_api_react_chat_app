@@ -11,22 +11,24 @@ This project demonstrates a **real-time chat application** using **Laravel Rever
 composer require laravel/reverb
 php artisan vendor:publish --tag=reverb-config
 php artisan reverb:start
+```
 2. Channels Configuration
 routes/channels.php
 
 php
-<code>
+```bash
 <?php
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
     return (int) $user->id === (int) $receiverId;
-});</code>
+});
+````
 3. API Routes
 routes/api.php
 
 php
-<code>
+```bash
 <?php
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
@@ -48,12 +50,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/message/send', [MessageController::class, 'sendmsg']);
     Route::get('/messages/{user}', [MessageController::class, 'getMessages']);
-});</code>
+});
+```
 4. Event for Broadcasting
 app/Events/MessageSent.php
 
 php
-<code>
+```bash
 <?php
 namespace App\Events;
 
@@ -90,10 +93,11 @@ class MessageSent implements ShouldBroadcast
             'created_at' => $this->message->created_at,
         ];
     }
-}</code>
+}
+```
 5. Send Message Controller
 php
-<code>
+```bash
 public function sendmsg(Request $request)
 {
     $request->validate([
@@ -110,12 +114,13 @@ public function sendmsg(Request $request)
     broadcast(new MessageSent($message))->toOthers();
 
     return response()->json($message);
-}</code>
+}
+```
 6. CORS Configuration
 config/cors.php
 
 php
-Copy code
+```bash
 <?php
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
@@ -127,66 +132,29 @@ return [
     'allowed_headers' => ['*'],
     'supports_credentials' => true,
 ];
+```
 7. Sanctum Configuration
 config/sanctum.php
 
 php
-Copy code
+```bash
 'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
     '%s%s',
     'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,localhost:5173',
     Sanctum::currentApplicationUrlWithPort(),
 ))),
+```
 ⚛️ Frontend Setup (React)
 1. Install Dependencies
 bash
-Copy code
+```bash
 npm install axios laravel-echo pusher-js
+```
 2. Echo Configuration
-src/lib/echo.js
 
+. Listen for Messages in React
 javascript
-Copy code
-import Echo from "laravel-echo";
-import Pusher from "pusher-js";
-import axios from "axios";
-
-window.Pusher = Pusher;
-
-const echo = new Echo({
-  broadcaster: "pusher",
-  key: import.meta.env.VITE_REVERB_APP_KEY,
-  wsHost: import.meta.env.VITE_REVERB_HOST,
-  wsPort: import.meta.env.VITE_REVERB_PORT,
-  forceTLS: false,
-  enabledTransports: ["ws", "wss"],
-  authorizer: (channel, options) => {
-    return {
-      authorize: (socketId, callback) => {
-        axios
-          .post(
-            "http://127.0.0.1:8000/api/broadcasting/auth",
-            {
-              socket_id: socketId,
-              channel_name: channel.name,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          )
-          .then((response) => callback(false, response.data))
-          .catch((error) => callback(true, error));
-      },
-    };
-  },
-});
-
-export default echo;
-3. Listen for Messages in React
-javascript
-Copy code
+```bash
 useEffect(() => {
   const storedUser = localStorage.getItem("user");
   if (!storedUser) return;
@@ -228,15 +196,18 @@ useEffect(() => {
     echoInstance.disconnect();
   };
 }, []);
+```
 🏃 Running the App
 Laravel Backend
-bash
+```bash
 php artisan serve
 php artisan reverb:start
+```
 React Frontend
 bash
-Copy code
+```bash
 npm run dev
+```
 ✅ Summary
 Laravel Reverb provides real-time broadcasting.
 
@@ -246,11 +217,4 @@ React connects via Laravel Echo + Pusher client.
 
 Users receive instant updates when a message is sent.
 
-yaml
-Copy code
 
----
-
-If you want, I can also make a **version with collapsible code sections and screenshots placeholders** so it looks even more polished on GitHub.  
-
-Do you want me to do that?
