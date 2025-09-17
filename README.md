@@ -1,34 +1,110 @@
-🚀 Real-time Chat with Laravel Reverb + React
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laravel Reverb + React Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    header p {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: monospace;
+    }
+    ul {
+      margin: 15px 0;
+      padding-left: 20px;
+    }
+    .badge {
+      display: inline-block;
+      margin: 5px 3px;
+    }
+    .note {
+      background: #f1f8ff;
+      border-left: 4px solid #0366d6;
+      padding: 10px 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
 
-This project demonstrates how to set up a real-time private chat system using Laravel Reverb (WebSockets) with a React frontend.
+<header>
+  <h1>🚀 Real-time Chat with Laravel Reverb + React</h1>
+  <p>Private Channels • Real-time Events • React Frontend • Sanctum Auth</p>
+</header>
 
-📌 Features
+<main>
+  <section>
+    <h2>📌 Features</h2>
+    <ul>
+      <li>🔒 Private channels per user (<code>chat.{receiverId}</code>)</li>
+      <li>📡 Real-time broadcasting with <b>Laravel Reverb</b></li>
+      <li>🔑 Authentication with <b>Laravel Sanctum</b></li>
+      <li>⚛️ React frontend with <b>Laravel Echo</b></li>
+    </ul>
+  </section>
 
-🔒 Private channels per user (chat.{receiverId})
-
-📡 Real-time message broadcasting with Laravel Reverb
-
-🔑 Secure authentication using Laravel Sanctum
-
-⚛️ React frontend with Laravel Echo
-
-🔹 1. Install & Configure Reverb
-composer require laravel/reverb
+  <section>
+    <h2>🔹 1. Install & Configure Reverb</h2>
+    <pre><code>composer require laravel/reverb
 php artisan vendor:publish --tag=reverb-config
-php artisan reverb:start
+php artisan reverb:start</code></pre>
+  </section>
 
-🔹 2. Laravel Backend Setup
-Channel Authorization (routes/channels.php)
-<?php
+  <section>
+    <h2>🔹 2. Laravel Backend Setup</h2>
+
+    <h3>Channel Authorization (<code>routes/channels.php</code>)</h3>
+    <pre><code>&lt;?php
 
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
-    return (int) $user->id === (int) $receiverId;
-});
+    return (int) $user-&gt;id === (int) $receiverId;
+});</code></pre>
 
-API Routes (routes/api.php)
-<?php
+    <h3>API Routes (<code>routes/api.php</code>)</h3>
+    <pre><code>&lt;?php
 
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
@@ -38,25 +114,25 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\MessageController;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+    return $request-&gt;user();
+})-&gt;middleware('auth:sanctum');
 
-Broadcast::routes(['middleware' => ['auth:sanctum']]);
+Broadcast::routes(['middleware' =&gt; ['auth:sanctum']]);
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')-&gt;group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')-&gt;group(function () {
     Route::post('/message/send', [MessageController::class, 'sendmsg']);
     Route::get('/messages/{user}', [MessageController::class, 'getMessages']);
-});
+});</code></pre>
 
-Event: MessageSent (app/Events/MessageSent.php)
-<?php
+    <h3>Event: MessageSent (<code>app/Events/MessageSent.php</code>)</h3>
+    <pre><code>&lt;?php
 
 namespace App\Events;
 
@@ -75,70 +151,73 @@ class MessageSent implements ShouldBroadcast
 
     public function __construct(Message $message)
     {
-        $this->message = $message;
+        $this-&gt;message = $message;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('chat.' . $this->message->receiver_id);
+        return new PrivateChannel('chat.' . $this-&gt;message-&gt;receiver_id);
     }
 
     public function broadcastWith()
     {
         return [
-            'id' => $this->message->id,
-            'sender_id' => $this->message->sender_id,
-            'receiver_id' => $this->message->receiver_id,
-            'message' => $this->message->message,
-            'created_at' => $this->message->created_at,
+            'id' =&gt; $this-&gt;message-&gt;id,
+            'sender_id' =&gt; $this-&gt;message-&gt;sender_id,
+            'receiver_id' =&gt; $this-&gt;message-&gt;receiver_id,
+            'message' =&gt; $this-&gt;message-&gt;message,
+            'created_at' =&gt; $this-&gt;message-&gt;created_at,
         ];
     }
-}
+}</code></pre>
 
-Message Controller
-public function sendmsg(Request $request)
+    <h3>Message Controller</h3>
+    <pre><code>public function sendmsg(Request $request)
 {
-    $request->validate([
-        'receiver_id' => 'required|exists:users,id',
-        'message' => 'required|string',
+    $request-&gt;validate([
+        'receiver_id' =&gt; 'required|exists:users,id',
+        'message' =&gt; 'required|string',
     ]);
 
     $message = Message::create([
-        'sender_id' => Auth::id(),
-        'receiver_id' => $request->receiver_id,
-        'message' => $request->message,
+        'sender_id' =&gt; Auth::id(),
+        'receiver_id' =&gt; $request-&gt;receiver_id,
+        'message' =&gt; $request-&gt;message,
     ]);
 
-    broadcast(new MessageSent($message))->toOthers();
+    broadcast(new MessageSent($message))-&gt;toOthers();
 
-    return response()->json($message);
-}
+    return response()-&gt;json($message);
+}</code></pre>
 
-CORS Config (config/cors.php)
-return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
-    'allowed_methods' => ['*'],
-    'allowed_origins' => [
+    <h3>CORS Config (<code>config/cors.php</code>)</h3>
+    <pre><code>return [
+    'paths' =&gt; ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
+    'allowed_methods' =&gt; ['*'],
+    'allowed_origins' =&gt; [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
     ],
-    'allowed_headers' => ['*'],
-    'supports_credentials' => true,
-];
+    'allowed_headers' =&gt; ['*'],
+    'supports_credentials' =&gt; true,
+];</code></pre>
 
-Sanctum Config (config/sanctum.php)
-'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+    <h3>Sanctum Config (<code>config/sanctum.php</code>)</h3>
+    <pre><code>'stateful' =&gt; explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
     '%s%s',
     'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,localhost:5173',
     Sanctum::currentApplicationUrlWithPort(),
-))),
+))),</code></pre>
+  </section>
 
-🔹 3. React Frontend Setup
-Install Dependencies
-npm install laravel-echo pusher-js axios
+  <section>
+    <h2>🔹 3. React Frontend Setup</h2>
 
-Echo Setup (echo.js)
-import Echo from "laravel-echo";
+    <h3>Install Dependencies</h3>
+    <pre><code>npm install laravel-echo pusher-js axios</code></pre>
+
+    <h3>Echo Setup (<code>echo.js</code>)</h3>
+    <pre><code>import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 import axios from "axios";
 
@@ -151,9 +230,9 @@ const echo = new Echo({
     wsPort: import.meta.env.VITE_REVERB_PORT,
     forceTLS: false,
     enabledTransports: ["ws", "wss"],
-    authorizer: (channel, options) => {
+    authorizer: (channel, options) =&gt; {
         return {
-            authorize: (socketId, callback) => {
+            authorize: (socketId, callback) =&gt; {
                 axios.post(
                     "http://127.0.0.1:8000/api/broadcasting/auth",
                     {
@@ -166,10 +245,10 @@ const echo = new Echo({
                         },
                     }
                 )
-                .then(response => {
+                .then(response =&gt; {
                     callback(false, response.data);
                 })
-                .catch(error => {
+                .catch(error =&gt; {
                     callback(true, error);
                 });
             },
@@ -177,10 +256,10 @@ const echo = new Echo({
     },
 });
 
-export default echo;
+export default echo;</code></pre>
 
-Listening for Messages (React useEffect)
-useEffect(() => {
+    <h3>Listening for Messages (<code>useEffect</code>)</h3>
+    <pre><code>useEffect(() =&gt; {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
 
@@ -206,38 +285,40 @@ useEffect(() => {
     });
 
     const channelName = `chat.${userData.id}`;
-    echoInstance.private(channelName).listen("MessageSent", (e) => {
+    echoInstance.private(channelName).listen("MessageSent", (e) =&gt; {
         console.log("New message received:", e);
-        setMessages((prev) => [...prev, e]);
+        setMessages((prev) =&gt; [...prev, e]);
     });
 
-    echoInstance.connector.pusher.connection.bind("connected", () =>
+    echoInstance.connector.pusher.connection.bind("connected", () =&gt;
         console.log("✅ Connected to Reverb")
     );
-    echoInstance.connector.pusher.connection.bind("error", (err) =>
+    echoInstance.connector.pusher.connection.bind("error", (err) =&gt;
         console.error("❌ Reverb error:", err)
     );
 
     setEcho(echoInstance);
 
-    return () => {
+    return () =&gt; {
         echoInstance.leave(channelName);
         echoInstance.disconnect();
     };
-}, []);
+}, []);</code></pre>
+  </section>
 
-✅ Final Notes
+  <section class="note">
+    <h2>✅ Final Notes</h2>
+    <p>Start Reverb server:</p>
+    <pre><code>php artisan reverb:start</code></pre>
 
-Start Laravel Reverb server:
-
-php artisan reverb:start
-
-
-Ensure .env in React has:
-
-VITE_REVERB_APP_KEY=your-key
+    <p>Ensure React <code>.env</code> has:</p>
+    <pre><code>VITE_REVERB_APP_KEY=your-key
 VITE_REVERB_HOST=localhost
-VITE_REVERB_PORT=8080
+VITE_REVERB_PORT=8080</code></pre>
 
+    <p>APIs are protected with <code>auth:sanctum</code>.</p>
+  </section>
+</main>
 
-Use auth:sanctum middleware to secure APIs.
+</body>
+</html>
