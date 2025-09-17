@@ -8,6 +8,10 @@ Publish & configure Reverb:
  php artisan vendor:publish --tag=reverb-config
 Run the Reverb server:
  php artisan reverb:start
+
+
+
+
 2. Laravel Backend Setup
 Channel Authorization (routes/channels.php):
 <?php
@@ -101,6 +105,8 @@ public function sendmsg(Request $request)
 
  	return response()->json($message);
  }
+
+
 CORS Config (config/cors.php)
 return [
  	'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
@@ -118,6 +124,12 @@ Sanctum Config (config/sanctum.php)
      'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,localhost:5173',
      Sanctum::currentApplicationUrlWithPort(),
  ))),
+
+
+================= React ================
+----------------------------------------
+
+
 3. React Frontend Setup
 Install Dependencies:
   npm install laravel-echo pusher-js axios
